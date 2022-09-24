@@ -1,0 +1,55 @@
+﻿@page "/"
+
+<PageTitle>Moogle!</PageTitle>
+
+
+<div class="photo">
+    <h1>🔍 Moogle!</h1>
+    <input class="p-1 my-4" @bind="query" placeholder="Introduzca su búsqueda">
+
+    <button type="default" class="btn btn-primary" @onclick="RunQuery" >🔍 Buscar</button>
+
+    @if (!string.IsNullOrEmpty(result.Suggestion)) {
+        <div class="suggestion">
+            <p>¿Quisiste decir <strong><a href="#" @onclick="Sug">@result.Suggestion</a></strong>?</p>
+        </div>
+    }
+</div>
+
+@* <div class="time">
+    <small hidden="ture">Elapsed time</small>
+</div> *@
+
+<ul class="results">
+@if(result.Items().Count()!=0){
+    <h1 class="time">
+        <small >results found in @crono.ElapsedMilliseconds milliseconds.</small>
+    </h1>
+    @foreach (var item in result.Items()) {
+        <h1 id="doc">
+            <div class="item">
+                <p class="title">@item.Title</p>
+                <p> @((MarkupString)item.Snippet) </p>
+            </div>
+        </h1>
+    }
+}
+</ul>
+
+@code {
+        
+    private System.Diagnostics.Stopwatch crono; 
+    private string query = "";
+    private SearchResult result = new SearchResult();
+    private void Sug(){
+        query = result.Suggestion;
+        RunQuery();
+    }
+    private void RunQuery(){
+        crono = new System.Diagnostics.Stopwatch();
+        crono.Start();
+        MoogleEngine.Program.Main();
+        result = Moogle.Query(query);
+        crono.Stop();
+    }
+}
